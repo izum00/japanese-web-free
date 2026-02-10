@@ -1,80 +1,82 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="ははは"/>
-  <title>google</title>
-  <link rel="stylesheet" href="/assets/css/style.css" />
-  <script defer src="/admin-notices-widget.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>google</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var styleEl = document.createElement('style');
+  styleEl.innerHTML = '@keyframes slideIn {from { opacity: 0; transform: translateY(-20px); }to { opacity: 1; transform: translateY(0); }}';
+  document.head.appendChild(styleEl);
+});
+</script>
 </head>
 <body>
-  <div id="announcement-modal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; position: relative; animation: slideIn 0.3s ease;">
-    <!-- 閉じるボタン -->
-    <button onclick="document.getElementById('announcement-modal').style.display='none';" style="position: absolute; top: 12px; left: 12px; background: none; border: none; font-size: 24px; color: #555; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #f0f0f0; transition: background 0.2s;">
-      ×
-    </button>
-    
-    <!-- お知らせ内容 -->
-    <div style="padding: 32px 24px 24px; color: #333; text-align: center;">
-      <h2 style="margin: 0 0 16px 0; font-size: 20px; color: #007BFF;">📢 J Web新Ver NEXTのリリース開始！</h2>
-      <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; text-align: left;">
-        非営利団体であるデジタル自由連盟が運営しているJapaneseWeb(J Web)を愛用してくださり、ありがとうございます!<br><br>
-        前々から告知していたJapanese Web NEXTverがついに日本時間11/19/12:00にリリースされました！<br><br>
-        今後当サイト（JapaneseWeb）の更新は原則止まることになっております。<br><br>
-        リンクはこちら→<a href="https://japanese-web-next-free-02.onrender.com/">https://japanese-web-next-01.onrender.com</a><br><br>
-        また、当サイトのリポジトリはGitLabで完全公開されているのでぜひフォークしてください！→<a href="https://gitlab.com/Hikari_5544-1/japanese-web-free/">https://gitlab.com/Hikari_5544-1/japanese-web-free/</a><br><br>
-        デジタル自由連盟　会長　Hikari_5544
-      </p>
-    </div>
-  </div>
-</div>
+<div id="announcement-modal" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:9999;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
+<div style="background:white;border-radius:16px;width:90%;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.15);overflow:hidden;position:relative;animation:slideIn 0.3s ease;">
+<button onclick="document.getElementById('announcement-modal').style.display='none';" style="position:absolute;top:12px;left:12px;background:none;border:none;font-size:24px;color:#555;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background-color:#f0f0f0;transition:background 0.2s;">×</button>
+<div style="padding:32px 24px 24px;color:#333;text-align:center;">
+<h2 style="margin:0 0 16px 0;font-size:20px;color:#007BFF;">📢 J Web&#26032;Ver NEXT&#12398;&#12522;&#12522;&#12540;&#12473;&#38283;&#22987;&#65281;</h2>
+<p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;text-align:left;">
+&#38750;&#21942;&#21033;&#22243;&#20307;&#12391;&#12354;&#12427;&#12487;&#12472;&#12479;&#12523;&#33258;&#30001;&#36899;&#30431;&#12364;&#36939;&#21942;&#12375;&#12390;&#12356;&#12427;JapaneseWeb(J Web)&#12434;&#24859;&#29992;&#12375;&#12390;&#12367;&#12384;&#12373;&#12426;&#12289;&#12354;&#12426;&#12364;&#12392;&#12358;&#12372;&#12374;&#12356;&#12414;&#12377;&#65281;<br><br>
+&#21069;&#12293;&#12363;&#12425;&#21578;&#30693;&#12375;&#12390;&#12356;&#12383;Japanese Web NEXTver&#12364;&#12388;&#12356;&#12395;&#26085;&#26412;&#26178;&#38291;11/19/12:00&#12395;&#12522;&#12522;&#12540;&#12473;&#12373;&#12428;&#12414;&#12375;&#12383;&#65281;<br><br>
+&#20170;&#24460;&#24403;&#12469;&#12452;&#12488;&#65288;JapaneseWeb&#65289;&#12398;&#26356;&#26032;&#12399;&#21407;&#21063;&#27490;&#12414;&#12427;&#12371;&#12392;&#12395;&#12394;&#12387;&#12390;&#12362;&#12426;&#12414;&#12377;&#12290;<br><br>
+&#12522;&#12531;&#12463;&#12399;&#12371;&#12385;&#12425;&#8594;<a href="https://japanese-web-next-free-02.onrender.com/">https://japanese-web-next-01.onrender.com</a><br><br>
+&#12414;&#12383;&#12289;&#24403;&#12469;&#12452;&#12488;&#12398;&#12522;&#12509;&#12472;&#12488;&#12522;&#12399;GitLab&#12391;&#23436;&#20840;&#20844;&#38283;&#12373;&#12428;&#12390;&#12356;&#12427;&#12398;&#12391;&#12380;&#12402;&#12501;&#12457;&#12540;&#12463;&#12375;&#12390;&#12367;&#12384;&#12373;&#12356;&#65281;&#8594;<a href="https&#58;&#47;&#47;gitlab&#46;com&#47;Hikari_5544-1&#47;japanese-web-free&#47;">
+https&#58;&#47;&#47;gitlab&#46;com&#47;Hikari_5544-1&#47;japanese-web-free&#47;
+</a>
+<br><br>
+&#12487;&#12472;&#12479;&#12523;&#33258;&#30001;&#36899;&#30431;&#12288;&#20250;&#38263;&#12288;Hikari_5544
+</p>
 
-<!-- ポップアップ表示アニメーション -->
-<style>
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
-  <header>
-    <h1><a href="/">Japanese Web</a></h1>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/proxy">Proxy</a>
-      <a href="/games">Games</a>
-    </nav>
-  </header>
+</div></div></div>
 
-  <main>
-    <section class="hero">
-      <h2>ようこそ！</h2>
-      <p>最新の機能はこちらからご覧ください。</p>
-    </section>
+<script>
+// 動的にヘッダーを追加
+(function() {
+  var header = document.createElement('header');
+  header.innerHTML = '<h1><a href="/">Izuemon版だよ</a></h1><nav><a href="/">Home</a><a href="/proxy">Proxy</a><a href="/games">Games</a></nav>';
+  document.body.appendChild(header);
+})();
 
-    <section class="posts">
-      <article>
-        <h3><a href="/youtube">🆕YouTube</a></h3>
-        <p>ついに！youtube機能、ｷﾀ━━━━(ﾟ∀ﾟ)━━━━!!　しかも、自分で簡単に量産できます！詳しくは<a href="/blog/youtube-copy">こちら</a>。</p>
-      </article>
-      <article>
-        <h3><a href="/proxy">ぷろきし</a></h3>
-        <p>Lightのやつをちょちょいと借りパクして作りました。履歴無しで見るには右上のボタン押してね。<br>たまに文字化けするかも。ごめんね</p>
-      </article>
-      <article>
-        <h3><a href="/game">ゲーム🎮️</a></h3>
-        <p>げーーむぅ！ゲームゲームゲームゲームゲームゲームゲームゲームへへへへへ(?)</p>
-      </article>
-      <article>
-        <h3><a href="/blog">運営からのお知らせ</a></h3>
-        <p>運営からのメッセージ。たまに愚痴がこぼれてます()</p>
-      </article>
-    </section>
-  </main>
+// 動的にメインコンテンツを追加
+(function() {
+  var main = document.createElement('main');
+  main.innerHTML = `<section class="hero"><h2>&#12424;&#12358;&#12371;&#12381;&#65281;</h2><p>&#26368;&#26032;&#12398;&#27231;&#33021;&#12399;&#12371;&#12385;&#12425;&#12363;&#12425;&#12372;&#35239;&#12367;&#12384;&#12373;&#12356;&#12290;</p></section>
+<section class="posts">
+<article>
+<h3><a href="/youtube">🆕YouTube</a></h3>
+<p>&#12388;&#12356;&#12395;&#65281;youtube&#27231;&#33021;&#12289;&#65367;&#65419;&#65428;&#65429;&#65425;&#65401;(&#65400;&#8704;&#65400;)&#65429;&#65425;&#65428;&#65419;&#65401;&#65281;&#65281;&#12288;&#12375;&#12363;&#12418;&#12289;&#33258;&#20998;&#12391;&#31777;&#21336;&#12395;&#37327;&#29987;&#12391;&#12365;&#12414;&#12377;&#65281;&#35443;&#12375;&#12367;&#12399;<a href="/blog/youtube-copy">&#12371;&#12385;&#12425;</a>&#12290;</p>
+</article>
+<article>
+<h3><a href="/proxy">&#12403;&#12429;&#12365;&#12375;</a></h3>
+<p>Light&#12398;&#12420;&#12388;&#12434;&#12385;&#12423;&#12385;&#12423;&#12356;&#12392;&#20511;&#12426;&#12497;&#12463;&#12375;&#12390;&#20316;&#12426;&#12414;&#12375;&#12383;&#12290;&#23665;&#27508;&#28961;&#12375;&#12391;&#35211;&#12427;&#12395;&#12399;&#21491;&#19978;&#12398;&#12508;&#12479;&#12531;&#25276;&#12375;&#12390;&#12397;&#12290;<br>
+&#12383;&#12414;&#12395;&#25991;&#23383;&#21270;&#12369;&#12377;&#12427;&#12363;&#12418;&#12290;&#12372;&#12417;&#12435;&#12397;
+</p>
+</article>
+<article>
+<h3><a href="/game">&#12466;&#12540;&#12512;🎮️</a></h3>
+<p>&#12370;&#12540;&#12540;&#12416;&#12353;&#65281;&#12466;&#12540;&#12512;&#12466;&#12540;&#12512;&#12466;&#12540;&#12512;&#12466;&#12540;&#12512;&#12466;&#12540;&#12512;&#12466;&#12540;&#12512;&#12466;&#12540;&#12512;&#12408;&#12408;&#12408;&#12408;&#12408;&#12408;&#12408;&#12408;(?)</p>
+</article>
+<article>
+<h3><a href="/blog">&#36939;&#21942;&#12363;&#12425;&#12398;&#12362;&#30693;&#12425;&#12379;</a></h3>
+<p>&#36939;&#21942;&#12363;&#12425;&#12398;&#12513;&#12483;&#12475;&#12540;&#12472;&#12290;&#12383;&#12414;&#12395;&#24868;&#30196;&#12364;&#12371;&#12412;&#12428;&#12390;&#12414;&#12377;()</p>
+</article>
+</section>
+`;
+  document.body.appendChild(main);
+})();
 
-  <footer>
-    <p>&copy; 2025 JW</p>
-  </footer>
+// 動的にフッターを追加
+(function() {
+  var footer = document.createElement('footer');
+  footer.innerHTML = '<p>&copy; 2025 JW</p>';
+  document.body.appendChild(footer);
+})();
+</script>
+
+<script defer src="/admin-notices-widget.js"></script>
 </body>
 </html>
