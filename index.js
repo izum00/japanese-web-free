@@ -94,6 +94,10 @@ app.get('/music-player', (req, res) => {
 app.get('/youtube', (req, res) => {
   res.sendFile(path.join(publicPath, 'youtube.html'));
 });
+app.get('/xv', (req, res) => {
+  res.sendFile(path.join(publicPath, 'xv.html'));
+});
+
 
 // 動的ルート: /game/:gameName
 app.get('/game/:gameName', (req, res) => {
@@ -118,3 +122,4 @@ app.get('/blog/:blogName', (req, res) => {
     }
   });
 });
+
