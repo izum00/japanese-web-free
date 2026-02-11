@@ -97,6 +97,9 @@ app.get('/youtube', (req, res) => {
 app.get('/xv', (req, res) => {
   res.sendFile(path.join(publicPath, 'xv.html'));
 });
+app.get('/music', (req, res) => {
+  res.sendFile(path.join(publicPath, 'music.html'));
+});
 
 
 // 動的ルート: /game/:gameName
@@ -122,4 +125,5 @@ app.get('/blog/:blogName', (req, res) => {
     }
   });
 });
+
 
