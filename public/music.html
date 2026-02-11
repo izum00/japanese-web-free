@@ -1,73 +1,665 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>無料音楽プレイヤー</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f9;
-      color: #333;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      color: #2c3e50;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 10px;
-      width: 70%;
-      max-width: 500px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      background: #2980b9;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #3498db;
-    }
-    #player {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 640px;
-      height: 360px;
-      border: none;
-    }
-    .info {
-      font-size: 14px;
-      color: #7f8c8d;
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izu Youtube Audio Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e3e3e3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .url-input-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #e3e3e3;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px #4361ee;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(227, 227, 227, 0.6);
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #4361ee, #3a0ca3);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #3a0ca3, #4361ee);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .player-section {
+            display: none;
+        }
+
+        .player-section.active {
+            display: block;
+        }
+
+        .audio-player {
+            margin-top: 1.5rem;
+        }
+
+        .track-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .track-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #4cc9f0;
+        }
+
+        .video-id {
+            font-size: 0.9rem;
+            color: rgba(227, 227, 227, 0.7);
+        }
+
+        .progress-container {
+            position: relative;
+            height: 30px;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-400%);
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4361ee, #4cc9f0);
+            width: 0%;
+            transition: width 0.1s linear;
+            border-radius: 3px;
+        }
+
+        .time-tooltip {
+            position: absolute;
+            top: -30px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: rgba(227, 227, 227, 0.8);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .play-pause-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .play-pause-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-pause-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            margin-left: 2rem;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .control-item svg {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .slider-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4cc9f0;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4cc9f0;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: right;
+            font-size: 0.9rem;
+            color: rgba(227, 227, 227, 0.8);
+        }
+
+        .error-message {
+            color: #f72585;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(247, 37, 133, 0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #4cc9f0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: rgba(227, 227, 227, 0.5);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .control-group {
+                margin-left: 0;
+                width: 100%;
+                flex-direction: column;
+                gap: 1.2rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>🎵 世界の曲を検索して再生</h1>
-  <p>YouTubeの動画を使って再生（無料・登録不要）</p>
+    <div class="container">
+        <h1>Izu Youtube Audio Player</h1>
+        <p>※意外と時間がかかるので、ほかのタブとかで時間を潰すのがおすすめです。<br><br></p>
+        <div class="url-input-section">
+            <div class="input-group">
+                <input type="text" id="youtubeUrl" placeholder="YouTubeのURLを貼り付けてください (例: https://www.youtube.com/watch?v=dQw4w9WgXcQ)">
+                <button id="loadAudio">読み込む</button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>音声を読み込んでいます...</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <p>エラーが発生しました。URLを確認して再度お試しください。</p>
+        </div>
+        
+        <div class="player-section" id="playerSection">
+            <div class="audio-player">
+                <div class="track-info">
+                    <div class="track-title" id="trackTitle">YouTube Audio</div>
+                    <div class="video-id" id="videoId"></div>
+                </div>
+                
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div class="time-tooltip" id="timeTooltip">0:00</div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <div class="play-pause-btn" id="playPauseBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/></svg>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-316.5q38-.5 56-27.5l224-336-336 224q-27 18-28.5 55t22.5 61q24 24 62 23.5Zm0-483.5q59 0 113.5 16.5T696-734l-76 48q-33-17-68.5-25.5T480-720q-133 0-226.5 93.5T160-400q0 42 11.5 83t32.5 77h552q23-38 33.5-79t10.5-85q0-36-8.5-70T766-540l48-76q30 47 47.5 100T880-406q1 57-13 109t-41 99q-11 18-30 28t-40 10H204q-21 0-40-10t-30-28q-26-45-40-95.5T80-400q0-83 31.5-155.5t86-127Q252-737 325-768.5T480-800Zm7 313Z"/></svg>
+                            <div class="slider-container">
+                                <input type="range" min="0.25" max="2" step="0.25" value="1" class="slider" id="playbackRate">
+                            </div>
+                            <div class="slider-value" id="playbackRateValue">1.0x</div>
+                        </div>
+                        
+                        <div class="control-item">
+                            <div id="volumeIcon">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M560-131v-82q90-26 145-100t55-168q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51-26.5 94.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/></svg>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" min="0" max="100" value="80" class="slider" id="volumeSlider">
+                            </div>
+                            <div class="slider-value" id="volumeValue">80%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Izu Youtube Audio Player &copy; 2023</p>
+    </footer>
 
-  <input type="text" id="searchInput" placeholder="曲名やアーティストを入力（例: レディー・ガガ ポーカーフェイス）" />
-  <button onclick="searchMusic()">検索して再生</button>
-
-  <iframe id="player" frameborder="0" allowfullscreen></iframe>
-
-  <p class="info">
-    ※ 音源はYouTubeより提供されます。<br>
-    全曲再生は可能ですが、広告が入る場合があります。<br>
-    コピーライト保護のため、一部の曲は再生できない場合があります。
-  </p>
-
-  <script>
-    function searchMusic() {
-      const query = encodeURIComponent(document.getElementById("searchInput").value + " audio");
-      const videoUrl = `https://www.youtube.com/embed?listType=search&list=${query}`;
-      document.getElementById("player").src = videoUrl;
-    }
-  </script>
+    <script>
+        // DOM要素の取得
+        const youtubeUrlInput = document.getElementById('youtubeUrl');
+        const loadAudioButton = document.getElementById('loadAudio');
+        const playerSection = document.getElementById('playerSection');
+        const trackTitle = document.getElementById('trackTitle');
+        const videoIdElement = document.getElementById('videoId');
+        const progressContainer = document.getElementById('progressContainer');
+        const progress = document.getElementById('progress');
+        const timeTooltip = document.getElementById('timeTooltip');
+        const currentTimeElement = document.getElementById('currentTime');
+        const durationElement = document.getElementById('duration');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playbackRateSlider = document.getElementById('playbackRate');
+        const playbackRateValue = document.getElementById('playbackRateValue');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingElement = document.getElementById('loading');
+        
+        // 音声要素の作成
+        const audioPlayer = new Audio();
+        let isPlaying = false;
+        let audioLoaded = false;
+        
+        // YouTube URLからIDを抽出する関数
+        function extractYouTubeId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+        
+        // 秒数を時間形式に変換する関数
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // 音量アイコンを更新する関数
+        function updateVolumeIcon(volume) {
+            let iconHtml = '';
+            
+            if (volume === 0) {
+                // ミュート
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M792-56 671-177q-25 16-53 27.5T560-131v-82q14-5 27.5-10t25.5-12L480-368v208L280-360H120v-240h128L56-792l56-56 736 736-56 56Zm-8-232-58-58q17-31 25.5-65t8.5-70q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 53-14.5 102T784-288ZM650-422l-90-90v-130q47 22 73.5 66t26.5 96q0 15-2.5 29.5T650-422ZM480-592 376-696l104-104v208Zm-80 238v-94l-72-72H200v80h114l86 86Zm-36-130Z"/></svg>`;
+            } else if (volume <= 33) {
+                // 小さい音量
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-360v-240h160l200-200v640L440-360H280Zm80-80h114l86 86v-252l-86 86H360v80Zm100-40Z"/></svg>`;
+            } else if (volume <= 66) {
+                // 中くらいの音量
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-360v-240h160l200-200v640L360-360H200Zm440 40v-322q45 21 72.5 65t27.5 97q0 53-27.5 96T640-320ZM480-606l-86 86H280v80h114l86 86v-252ZM380-480Z"/></svg>`;
+            } else {
+                // 大きい音量
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M560-131v-82q90-26 145-100t55-168q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51-26.5 94.5T560-320ZM400-606l-86 86H200v80h114l86 86v-252ZM300-480Z"/></svg>`;
+            }
+            
+            volumeIcon.innerHTML = iconHtml;
+        }
+        
+        // 音声を読み込む関数
+        function loadAudio() {
+            const url = youtubeUrlInput.value.trim();
+            
+            if (!url) {
+                errorMessage.textContent = "URLを入力してください";
+                errorMessage.classList.add('active');
+                return;
+            }
+            
+            const videoId = extractYouTubeId(url);
+            
+            if (!videoId) {
+                errorMessage.textContent = "YouTubeのURLを正しく入力してください";
+                errorMessage.classList.add('active');
+                return;
+            }
+            
+            // ローディング表示
+            loadingElement.classList.add('active');
+            errorMessage.classList.remove('active');
+            playerSection.classList.remove('active');
+            
+            // API URLの構築
+            const apiUrl = `https://izu-ytdl-api.servernux.com/download?v=${videoId}&q=a`;
+            
+            // 音声の読み込み
+            audioPlayer.src = apiUrl;
+            audioPlayer.load();
+            
+            // 音声メタデータが読み込まれたら
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                // ローディング非表示
+                loadingElement.classList.remove('active');
+                
+                // プレイヤー表示
+                playerSection.classList.add('active');
+                audioLoaded = true;
+                
+                // トラック情報の更新
+                trackTitle.textContent = `YouTube Audio (${videoId})`;
+                videoIdElement.textContent = `動画ID: ${videoId}`;
+                
+                // 再生時間の表示を更新
+                durationElement.textContent = formatTime(audioPlayer.duration);
+                
+                // 再生速度の設定
+                audioPlayer.playbackRate = playbackRateSlider.value;
+                playbackRateValue.textContent = `${playbackRateSlider.value}x`;
+                
+                // 音量の設定
+                const volume = volumeSlider.value / 100;
+                audioPlayer.volume = volume;
+                volumeValue.textContent = `${volumeSlider.value}%`;
+                updateVolumeIcon(volumeSlider.value);
+                
+                // 自動再生
+                audioPlayer.play();
+                isPlaying = true;
+                updatePlayPauseButton();
+            });
+            
+            // エラーハンドリング
+            audioPlayer.addEventListener('error', (e) => {
+                loadingElement.classList.remove('active');
+                errorMessage.textContent = "音声の読み込みに失敗しました。URLを確認してください。";
+                errorMessage.classList.add('active');
+                console.error("Audio loading error:", e);
+            });
+        }
+        
+        // 再生/一時停止ボタンの更新
+        function updatePlayPauseButton() {
+            if (isPlaying) {
+                playPauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M520-200v-560h240v560H520Zm-320 0v-560h240v560H200Zm400-80h80v-400h-80v400Zm-320 0h80v-400h-80v400Zm0-400v400-400Zm320 0v400-400Z"/></svg>`;
+            } else {
+                playPauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/></svg>`;
+            }
+        }
+        
+        // プログレスバーの更新
+        function updateProgressBar() {
+            if (!audioLoaded) return;
+            
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            const progressPercent = (currentTime / duration) * 100;
+            
+            progress.style.width = `${progressPercent}%`;
+            currentTimeElement.textContent = formatTime(currentTime);
+        }
+        
+        // プログレスバーのクリックでシーク
+        function seekToPosition(e) {
+            if (!audioLoaded) return;
+            
+            const progressRect = progressContainer.getBoundingClientRect();
+            const clickX = e.clientX - progressRect.left;
+            const progressWidth = progressRect.width;
+            const seekTime = (clickX / progressWidth) * audioPlayer.duration;
+            
+            audioPlayer.currentTime = seekTime;
+        }
+        
+        // プログレスバーのホバーでツールチップ表示
+        function showTimeTooltip(e) {
+            if (!audioLoaded) return;
+            
+            const progressRect = progressContainer.getBoundingClientRect();
+            const hoverX = e.clientX - progressRect.left;
+            const progressWidth = progressRect.width;
+            const hoverTime = (hoverX / progressWidth) * audioPlayer.duration;
+            
+            timeTooltip.textContent = formatTime(hoverTime);
+            timeTooltip.style.left = `${hoverX}px`;
+            timeTooltip.style.opacity = '1';
+        }
+        
+        // イベントリスナーの設定
+        loadAudioButton.addEventListener('click', loadAudio);
+        
+        youtubeUrlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadAudio();
+            }
+        });
+        
+        playPauseBtn.addEventListener('click', () => {
+            if (!audioLoaded) return;
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+            } else {
+                audioPlayer.play();
+            }
+            
+            isPlaying = !isPlaying;
+            updatePlayPauseButton();
+        });
+        
+        // 音声の再生状態の監視
+        audioPlayer.addEventListener('play', () => {
+            isPlaying = true;
+            updatePlayPauseButton();
+        });
+        
+        audioPlayer.addEventListener('pause', () => {
+            isPlaying = false;
+            updatePlayPauseButton();
+        });
+        
+        audioPlayer.addEventListener('timeupdate', updateProgressBar);
+        
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            updatePlayPauseButton();
+        });
+        
+        // プログレスバーの操作
+        progressContainer.addEventListener('click', seekToPosition);
+        
+        progressContainer.addEventListener('mousemove', showTimeTooltip);
+        
+        progressContainer.addEventListener('mouseleave', () => {
+            timeTooltip.style.opacity = '0';
+        });
+        
+        // 再生速度の調整
+        playbackRateSlider.addEventListener('input', () => {
+            const rate = playbackRateSlider.value;
+            audioPlayer.playbackRate = rate;
+            playbackRateValue.textContent = `${rate}x`;
+        });
+        
+        // 音量の調整
+        volumeSlider.addEventListener('input', () => {
+            const volume = volumeSlider.value / 100;
+            audioPlayer.volume = volume;
+            volumeValue.textContent = `${volumeSlider.value}%`;
+            updateVolumeIcon(volumeSlider.value);
+        });
+        
+        // 初期音量アイコンの設定
+        updateVolumeIcon(volumeSlider.value);
+        
+        // サンプルURLを設定（オプション）
+        youtubeUrlInput.value = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    </script>
 </body>
 </html>
