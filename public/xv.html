@@ -1700,7 +1700,7 @@
         // CORS Proxy URL（キャッシュ防止用ランダムパラメータ追加）
         const getCorsProxyUrl = (url) => {
             const randomNum = Math.floor(10000 + Math.random() * 90000);
-            return `https://izu-ytdl-api.servernux.com/cors-proxy?url=${encodeURIComponent(url)}&uvrqu=${randomNum}`;
+            return `https://izu-ytdl-api.servernux.com/cors-proxy?uvrqu=${randomNum}&url=${encodeURIComponent(url)}`;
         };
 
         const BASE_URL = 'https://www.xvideos.com/';
