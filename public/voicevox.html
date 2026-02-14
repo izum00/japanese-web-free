@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Editor Pro - v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* スライダーの見た目調整 */
+        .mora-column { transition: background 0.2s; cursor: ns-resize; }
+        .mora-column:hover { background: rgba(255, 255, 255, 0.05); }
+        .active-tab { border-bottom: 3px solid #3b82f6; color: #3b82f6; }
+        /* バーの基本スタイル */
+        .mora-bar { width: 12px; border-radius: 4px; transition: height 0.05s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        <h1 class="text-2xl font-bold border-b border-gray-700 pb-2">VOICEVOX</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-1">
+                <label class="block text-sm font-medium mb-1">Speaker Model</label>
+                <select id="speakerSelect" class="w-full bg-gray-800 border border-gray-600 rounded p-2 focus:ring-2 focus:ring-blue-500"></select>
+                <button onclick="fetchSpeakers()" class="mt-2 text-xs text-blue-400 hover:underline">モデルを再読み込み</button>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium mb-1">Input Text</label>
+                <div class="flex gap-2">
+                    <input type="text" id="inputText" value="こんにちは、今日はいい天気ですね。" class="flex-1 bg-gray-800 border border-gray-600 rounded p-2 text-white">
+                    <button onclick="getAudioQuery()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded font-bold transition">解析</button>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-gray-700">
+
+        <div class="bg-gray-800 rounded-lg p-4">
+            <div class="flex gap-4 mb-4 border-b border-gray-700">
+                <button onclick="switchTab('pitch')" id="tab-pitch" class="pb-2 px-2 active-tab">ピッチ</button>
+                <button onclick="switchTab('consonant')" id="tab-consonant" class="pb-2 px-2">子音の長さ</button>
+                <button onclick="switchTab('vowel')" id="tab-vowel" class="pb-2 px-2">母音の長さ</button>
+            </div>
+
+            <div id="editorContainer" class="h-40 flex items-end gap-0 overflow-x-auto bg-gray-950 rounded border border-gray-700">
+                <p class="text-gray-500 w-full text-center self-center italic">「解析」ボタンを押すとバーが表示されます</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div class="space-y-3">
+                <h3 class="font-bold text-blue-400">話し方の設定</h3>
+                <div>速さ: <span id="val-speed">1.0</span> <input type="range" id="speedScale" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full"></div>
+                <div>ピッチ: <span id="val-pitch">0.0</span> <input type="range" id="pitchScale" min="-0.15" max="0.15" step="0.01" value="0.0" class="w-full"></div>
+                <div>抑揚: <span id="val-intonation">1.0</span> <input type="range" id="intonationScale" min="0" max="2.0" step="0.1" value="1.0" class="w-full"></div>
+                <div>音量: <span id="val-volume">1.0</span> <input type="range" id="volumeScale" min="0" max="2.0" step="0.1" value="1.0" class="w-full"></div>
+            </div>
+            <div class="space-y-3">
+                <h3 class="font-bold text-green-400">ポーズ・間の設定</h3>
+                <div>前無音: <span id="val-pre">0.1</span> <input type="range" id="prePhonemeLength" min="0" max="1.5" step="0.1" value="0.1" class="w-full"></div>
+                <div>後無音: <span id="val-post">0.1</span> <input type="range" id="postPhonemeLength" min="0" max="1.5" step="0.1" value="0.1" class="w-full"></div>
+                <div>ポーズ倍率: <span id="val-pause">1.0</span> <input type="range" id="pauseLengthScale" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full"></div>
+            </div>
+            <div class="space-y-3 text-xs bg-gray-800 p-3 rounded">
+                <h3 class="font-bold text-yellow-400">出力設定</h3>
+                <label><input type="checkbox" id="outputStereo"> ステレオ出力</label><br>
+                サンプリングレート:
+                <select id="outputSamplingRate" class="bg-gray-700 w-full mt-1 border-gray-600 rounded">
+                    <option value="24000">24000Hz (標準)</option>
+                    <option value="44100">44100Hz (高画質)</option>
+                    <option value="48000">48000Hz</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center pt-6 border-t border-gray-700">
+            <button onclick="synthesize()" id="synthBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-12 py-3 rounded-full font-bold text-lg shadow-lg disabled:opacity-50 transition-all transform hover:scale-105">
+                音声合成を開始
+            </button>
+            <div id="status" class="mt-4 text-sm text-gray-400"></div>
+            <audio id="audioPlayer" controls class="mt-4 hidden"></audio>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://izuemon-coeiroink.hf.space";
+        let currentAudioQuery = null;
+        let activeTab = 'pitch';
+
+        window.onload = fetchSpeakers;
+
+        async function fetchSpeakers() {
+            try {
+                const res = await fetch(`${API_BASE}/speakers`);
+                const data = await res.json();
+                const select = document.getElementById('speakerSelect');
+                select.innerHTML = '';
+                data.forEach(s => {
+                    s.styles.forEach(style => {
+                        const opt = document.createElement('option');
+                        opt.value = style.id;
+                        opt.textContent = `${s.name} (${style.name})`;
+                        select.appendChild(opt);
+                    });
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function getAudioQuery() {
+            const text = document.getElementById('inputText').value;
+            const speakerId = document.getElementById('speakerSelect').value;
+            const res = await fetch(`${API_BASE}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`, { method: 'POST' });
+            currentAudioQuery = await res.json();
+            renderEditor();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            ['pitch', 'consonant', 'vowel'].forEach(t => {
+                document.getElementById(`tab-${t}`).className = t === tab ? 'pb-2 px-2 active-tab' : 'pb-2 px-2 text-gray-400';
+            });
+            renderEditor();
+        }
+
+function renderEditor() {
+            const container = document.getElementById('editorContainer');
+            if (!currentAudioQuery) return;
+            container.innerHTML = '';
+
+            currentAudioQuery.accent_phrases.forEach((phrase, pIdx) => {
+                phrase.moras.forEach((mora, mIdx) => {
+                    // カラム（この全体がドラッグ可能領域）
+                    const col = document.createElement('div');
+                    col.className = "mora-column flex flex-col items-center justify-end h-full min-w-[46px] pb-2 border-r border-gray-800/30";
+                    
+                    const bar = document.createElement('div');
+                    bar.className = "mora-bar mb-2";
+
+                    // 値の更新と見た目の反映
+                    const updateUI = () => {
+                        if (activeTab === 'pitch') {
+                            // ピッチは短めに設定 (スケール 12)
+                            bar.style.height = `${mora.pitch * 12}px`; 
+                            bar.style.backgroundColor = '#3b82f6';
+                        } else if (activeTab === 'consonant') {
+                            // 子音の長さは長めに (スケール 100)
+                            const len = (mora.consonant_length || 0);
+                            bar.style.height = `${len * 500 + 5}px`;
+                            bar.style.backgroundColor = '#10b981';
+                        } else {
+                            // 母音の長さも長めに (スケール 100)
+                            bar.style.height = `${mora.vowel_length * 500 + 5}px`;
+                            bar.style.backgroundColor = '#f59e0b';
+                        }
+                    };
+
+                    // ドラッグイベント
+                    col.onmousedown = (e) => {
+                        let lastY = e.clientY;
+                        const move = (me) => {
+                            const diff = lastY - me.clientY;
+                            lastY = me.clientY;
+                            
+                            // 感度調整（長さ調整は少しゆっくり変化するように設定）
+                            if (activeTab === 'pitch') {
+                                mora.pitch += diff * 0.05;
+                            } else if (activeTab === 'consonant') {
+                                mora.consonant_length = Math.max(0, (mora.consonant_length || 0) + diff * 0.001);
+                            } else {
+                                mora.vowel_length = Math.max(0, mora.vowel_length + diff * 0.001);
+                            }
+                            updateUI();
+                        };
+                        const up = () => {
+                            window.removeEventListener('mousemove', move);
+                            window.removeEventListener('mouseup', up);
+                        };
+                        window.addEventListener('mousemove', move);
+                        window.addEventListener('mouseup', up);
+                    };
+
+                    const label = document.createElement('span');
+                    label.className = "text-[11px] font-bold text-gray-300 pointer-events-none select-none";
+                    label.textContent = mora.text;
+
+                    updateUI();
+                    col.appendChild(bar);
+                    col.appendChild(label);
+                    container.appendChild(col);
+                });
+                
+                // フレーズ区切り（視認性アップ）
+                const sep = document.createElement('div');
+                sep.className = "w-2 h-full bg-gray-900 border-x border-gray-800 mx-0 flex-shrink-0";
+                container.appendChild(sep);
+            });
+        }
+        async function synthesize() {
+            if (!currentAudioQuery) return alert("先に解析を行ってください");
+            const btn = document.getElementById('synthBtn');
+            const status = document.getElementById('status');
+            btn.disabled = true;
+            status.textContent = "合成中...";
+
+            // 各種スケールの反映
+            currentAudioQuery.speedScale = parseFloat(document.getElementById('speedScale').value);
+            currentAudioQuery.pitchScale = parseFloat(document.getElementById('pitchScale').value);
+            currentAudioQuery.intonationScale = parseFloat(document.getElementById('intonationScale').value);
+            currentAudioQuery.volumeScale = parseFloat(document.getElementById('volumeScale').value);
+            currentAudioQuery.prePhonemeLength = parseFloat(document.getElementById('prePhonemeLength').value);
+            currentAudioQuery.postPhonemeLength = parseFloat(document.getElementById('postPhonemeLength').value);
+            currentAudioQuery.pauseLengthScale = parseFloat(document.getElementById('pauseLengthScale').value);
+            currentAudioQuery.outputSamplingRate = parseInt(document.getElementById('outputSamplingRate').value);
+            currentAudioQuery.outputStereo = document.getElementById('outputStereo').checked;
+
+            const speakerId = document.getElementById('speakerSelect').value;
+            
+            try {
+                const res = await fetch(`${API_BASE}/synthesis?speaker=${speakerId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentAudioQuery)
+                });
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const player = document.getElementById('audioPlayer');
+                player.src = url;
+                player.classList.remove('hidden');
+                player.play();
+                status.textContent = "合成完了！";
+            } catch (e) {
+                status.textContent = "エラーが発生しました";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // スライダーの数値更新用
+        const inputIds = ['speedScale', 'pitchScale', 'intonationScale', 'volumeScale', 'prePhonemeLength', 'postPhonemeLength', 'pauseLengthScale'];
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', (e) => {
+                    const displayId = id.replace('Scale', '').replace('PhonemeLength', '').replace('Length', '').toLowerCase();
+                    const target = document.getElementById(`val-${displayId}`);
+                    if (target) target.textContent = parseFloat(e.target.value).toFixed(2);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
