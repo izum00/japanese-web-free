@@ -101,6 +101,10 @@ app.get('/music', (req, res) => {
   res.sendFile(path.join(publicPath, 'music.html'));
 });
 
+app.get('/voicevox', (req, res) => {
+  res.sendFile(path.join(publicPath, 'voicevox.html'));
+});
+
 
 // 動的ルート: /game/:gameName
 app.get('/game/:gameName', (req, res) => {
@@ -125,5 +129,6 @@ app.get('/blog/:blogName', (req, res) => {
     }
   });
 });
+
 
 
